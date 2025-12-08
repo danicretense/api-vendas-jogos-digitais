@@ -2,7 +2,7 @@ const RelatorioDAO = require('../daos/RelatorioDAO');
 
 class RelatorioController {
     async jogoMaisVendido(req, res) {
-        const top = req.query.top;
+        let top = req.query.top;
         const empresa = req.query.empresa;
 
         try {

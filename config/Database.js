@@ -180,7 +180,7 @@ class Database {
                 return;
             }
 
-            const lines = data.split('\n').slice(1);
+            const lines = data.split('\n').slice(0);
             lines.forEach(line => {
                 const [nome, ano, preco, descricao, empresa, categoria] = line.split(',');
                 if (nome) {
