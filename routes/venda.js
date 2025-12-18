@@ -8,5 +8,6 @@ router.use(authMiddleware);
 
 router.get('/', vendaController.history);
 router.post('/checkout', vendaController.checkout);
+router.post('/pay', vendaController.pay);
 
 module.exports = router;

@@ -4,6 +4,7 @@ const itemCarrinhoDAO = require('../daos/ItemCarrinhoDAO');
 const jogoDAO = require('../daos/JogoDAO');
 const Venda = require("../models/Venda");
 const { generateActivationKey } = require('../util/cripto');
+const pagamentoService = require('../services/PagamentoService');
 
 class VendaController {
     async checkout(req, res) {
@@ -45,6 +46,17 @@ class VendaController {
             res.json(vendas);
         } catch (error) {
             res.status(500).json({ message: 'Erro no servidor.', error: error.message });
+        }
+    }
+
+    async pay(req, res) {
+        const usuarioId = req.user.id;
+        const { metodo, dados } = req.body;
+        try {
+            const resultado = await pagamentoService.processarPagamento(metodo, dados);
+            res.status(200).json({ message: 'Pagamento processado com sucesso.', resultado });
+        } catch (error) {
+            res.status(500).json({ message: 'Erro ao processar pagamento.', error: error.message });
         }
     }
 }

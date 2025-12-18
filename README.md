@@ -1,15 +1,24 @@
 # API de Vendas de Jogos Digitais
 
-## 1. Escopo
+## 1. Descrição
 
-Uma API RESTful responsável por gerenciar uma loja de jogos digitais.
+Uma API RESTful para gerenciar uma loja de jogos digitais.
 
 ### 1.1 Funcionalidades Gerais
 
-- Permite a busca de uma empresa.
-- Permite o cadastro, a edição e a remoção de uma empresa para o usuário de perfil admin.
-- Permite a busca de um jogo.
-- Permite o cadastro, a edição e a remoção de um jogo para o usuário de perfil admin.
+- Autenticação e autorização via JWT (perfis cliente e administrador).
+- Registro, login e alteração de senha de usuários.
+- Criação, edição, remoção e listagem de empresas (apenas admin).
+- Criação, edição, remoção e listagem de categorias (apenas admin).
+- Criação, edição, remoção e listagem de jogos (apenas admin).
+- Listagem pública de jogos.
+- Detalhamento de jogo específico.
+- Lista de desejos (wishlist) por usuário.
+- Carrinho de compras: adicionar/remover itens e listar itens.
+- Finalizar venda: cálculo do valor total, geração de chaves de ativação, marcação do carrinho como finalizado e registro da venda.
+- Simulação de pagamentos via métodos de cartão de crédito, pix e boleto.
+- Histórico de compras do usuário (vendas e chaves de ativação associadas).
+- Avaliações de jogos: nota (1–5) e comentário; média de avaliações e contagem de comentários; suporte a marcação de spoilers (em construção).
 
 ## 2. Requisitos Funcionais da API
 
@@ -71,9 +80,18 @@ RNF05 – API deve retornar mensagens de confirmação em operações sensíveis
 
 ## 4. Protocolos e Tecnologias
 
+- Node.js
 - Protocolo: HTTP/HTTPS
 - Formato de dados: JSON
 - Autenticação: JWT
 - Padrão de API: RESTful
 - Versionamento: /api/v1/...
+- Banco de dados: SQLite
 
+## 5. Como rodar (local)
+
+1. Copiar `.env.example` para `.env` e ajustar variáveis (ex.: DB_NAME, JWT_SECRET).
+2. Instalar dependências:
+   npm install
+3. Rodar a aplicação:
+   npm start
