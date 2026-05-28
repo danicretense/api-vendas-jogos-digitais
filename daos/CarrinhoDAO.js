@@ -3,66 +3,73 @@ const Carrinho = require("../models/Carrinho");
 
 class CarrinhoDAO {
   async findByUser(fkUsuario) {
-    const sql = 'SELECT * FROM carrinhos WHERE fk_usuario = ?';
-    const rows = await dbService.all(sql, [fkUsuario]);
-    return rows.map(row => new Carrinho(row.id, row.fk_usuario, row.status, row.fk_venda));
+    const sql = 'SELECT * FROM carrinhos WHERE fk_usuario = $1';
+    const result = await dbService.query(sql, [fkUsuario]);
+    return result.rows.map(row => new Carrinho(row.id, row.fk_usuario, row.status, row.fk_venda));
   }
 
   async findAtivoByUser(fkUsuario) {
-    const sql = 'SELECT * FROM carrinhos WHERE fk_usuario = ? AND status = "A"';
-    const row = await dbService.get(sql, [fkUsuario]);
+    // Aspas simples ('A') utilizadas, pois o PostgreSQL exige aspas simples para strings
+    const sql = "SELECT * FROM carrinhos WHERE fk_usuario = $1 AND status = 'A'";
+    const result = await dbService.query(sql, [fkUsuario]);
+    const row = result.rows[0];
     return row ? new Carrinho(row.id, row.fk_usuario, row.status, row.fk_venda) : null;
   }
 
   async findAtivoByUserAndGame(fkUsuario, fkJjogo) {
-    const sql = `SELECT * FROM carrinhos c 
+    // Especificado 'c.*' para evitar conflito de IDs caso itens_carrinho retorne colunas com o mesmo nome
+    const sql = `SELECT c.* FROM carrinhos c 
     JOIN itens_carrinho ic ON c.id = ic.fk_carrinho
-    WHERE c.fk_usuario = ? AND ic.fk_jogo = ? AND c.status = 'A'`;
-    const row = await dbService.get(sql, [fkUsuario, fkJjogo]);
-    return row;
+    WHERE c.fk_usuario = $1 AND ic.fk_jogo = $2 AND c.status = 'A'`;
+    const result = await dbService.query(sql, [fkUsuario, fkJjogo]);
+    return result.rows[0] || null;
   }
 
   async findById(id) {
-    const sql = 'SELECT * FROM carrinhos WHERE id = ?';
-    const row = await dbService.get(sql, [id]);
+    const sql = 'SELECT * FROM carrinhos WHERE id = $1';
+    const result = await dbService.query(sql, [id]);
+    const row = result.rows[0];
     return row ? new Carrinho(row.id, row.fk_usuario, row.status, row.fk_venda) : null;
   }
 
   async findAll() {
     const sql = 'SELECT * FROM carrinhos';
-    const rows = await dbService.all(sql);
-    return rows.map(row => new Carrinho(row.id, row.fk_usuario, row.status, row.fk_venda));
+    const result = await dbService.query(sql);
+    return result.rows.map(row => new Carrinho(row.id, row.fk_usuario, row.status, row.fk_venda));
   }
 
   async create(fkUsuario) {
-    const sql = 'INSERT INTO carrinhos (fk_usuario) VALUES (?)';
+    // Adicionada a cláusula RETURNING * para capturar o ID gerado pelo banco e os valores default
+    const sql = 'INSERT INTO carrinhos (fk_usuario) VALUES ($1) RETURNING *';
     const params = [fkUsuario];
-    const result = await dbService.run(sql, params);
-    return new Carrinho(result.lastID, fkUsuario, result.status, result.fk_venda);
+    const result = await dbService.query(sql, params);
+    const row = result.rows[0];
+    return new Carrinho(row.id, row.fk_usuario, row.status, row.fk_venda);
   }
 
   async finalize(id, fkVenda) {
-    const sql = `UPDATE carrinhos SET status = 'F', fk_venda = ? WHERE id = ?`;
-    const result = await dbService.run(sql, [fkVenda, id]);
-    return { changes: result.changes };
+    const sql = `UPDATE carrinhos SET status = 'F', fk_venda = $1 WHERE id = $2`;
+    const result = await dbService.query(sql, [fkVenda, id]);
+    // O PostgreSQL retorna a quantidade de linhas afetadas na propriedade rowCount
+    return { changes: result.rowCount };
   }
 
   async update(id, fkUsuario) {
-    const sql = `UPDATE carrinhos SET fk_usuario = ? WHERE id = ?`;
-    const result = await dbService.run(sql, [fkUsuario, id]);
-    return { changes: result.changes };
+    const sql = `UPDATE carrinhos SET fk_usuario = $1 WHERE id = $2`;
+    const result = await dbService.query(sql, [fkUsuario, id]);
+    return { changes: result.rowCount };
   }
 
   async delete(id) {
-    const sql = 'DELETE FROM carrinhos WHERE id = ?';
-    const result = await dbService.run(sql, [id]);
-    return { changes: result.changes };
+    const sql = 'DELETE FROM carrinhos WHERE id = $1';
+    const result = await dbService.query(sql, [id]);
+    return { changes: result.rowCount };
   }
 
   async deleteByUserId(fkUsuario) {
-    const sql = 'DELETE FROM carrinhos WHERE fk_usuario = ?';
-    const result = await dbService.run(sql, [fkUsuario]);
-    return { changes: result.changes };
+    const sql = 'DELETE FROM carrinhos WHERE fk_usuario = $1';
+    const result = await dbService.query(sql, [fkUsuario]);
+    return { changes: result.rowCount };
   }
 }
 

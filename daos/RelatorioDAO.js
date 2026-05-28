@@ -14,12 +14,13 @@ class RelatorioDAO {
             LEFT JOIN carrinhos c ON ic.fk_carrinho = c.id
             LEFT JOIN empresas e ON j.fk_empresa = e.id
             WHERE c.status = 'F'
-            GROUP BY j.id, j.nome, j.preco
+            GROUP BY j.id, j.nome, j.preco, e.nome
             ORDER BY total_vendas DESC
-            LIMIT ?`;
-        const rows = await dbService.all(query, [top]);
-        if (rows == undefined) return [];
-        return rows.map(row => new JogoMaisVendidoDTO(row.jogo, row.empresa, row.total_vendas));
+            LIMIT $1`;
+        
+        const result = await dbService.query(query, [top]);
+        if (!result || !result.rows) return [];
+        return result.rows.map(row => new JogoMaisVendidoDTO(row.jogo, row.empresa, row.total_vendas));
     }
 
     async countGameSellByEnterprise(top, empresaId) {
@@ -32,13 +33,14 @@ class RelatorioDAO {
             LEFT JOIN itens_carrinho ic ON j.id = ic.fk_jogo
             LEFT JOIN carrinhos c ON ic.fk_carrinho = c.id
             LEFT JOIN empresas e ON j.fk_empresa = e.id
-            WHERE c.status = 'F' AND e.id = ?
-            GROUP BY j.id, j.nome, j.preco
+            WHERE c.status = 'F' AND e.id = $1
+            GROUP BY j.id, j.nome, j.preco, e.nome
             ORDER BY total_vendas DESC
-            LIMIT ?`;
-        const rows = await dbService.all(query, [empresaId, top]);
-        if (rows == undefined) return [];
-        return rows.map(row => new JogoMaisVendidoDTO(row.jogo, row.empresa, row.total_vendas));
+            LIMIT $2`;
+            
+        const result = await dbService.query(query, [empresaId, top]);
+        if (!result || !result.rows) return [];
+        return result.rows.map(row => new JogoMaisVendidoDTO(row.jogo, row.empresa, row.total_vendas));
     }
 }
 

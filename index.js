@@ -23,7 +23,6 @@ app.use(cors());
 
 app.listen(APP_PORT, '0.0.0.0', () => {
   console.log(`API de vendas de jogos em execução na porta ${APP_PORT}.`);
-  console.log(`Acesse a url http://localhost:${APP_PORT}`);
 });
 
 app.get('/check', (req, res) => {

@@ -11,9 +11,10 @@ class JogoDAO {
         if (categoria) {
             query += " WHERE categoria LIKE '%" + categoria + "%'";
         }
-        const rows = await dbService.all(query);
-        if (rows == undefined) return [];
-        return rows.map(row => new Jogo(row.id, row.nome, row.ano, row.preco, row.desconto, row.descricao, row.fk_empresa, row.fk_categoria));
+        
+        const result = await dbService.query(query);
+        if (!result || !result.rows) return [];
+        return result.rows.map(row => new Jogo(row.id, row.nome, row.ano, row.preco, row.desconto, row.descricao, row.fk_empresa, row.fk_categoria));
     }
 
     async getExhibition() {
@@ -22,14 +23,15 @@ class JogoDAO {
             JOIN categorias c ON c.id = j.fk_categoria
             JOIN empresas e ON e.id = j.fk_empresa`;
 
-        const rows = await dbService.all(query);
-        if (rows == undefined) return [];
-        return rows.map(row => new JogoDTO(row.nome, row.descricao, row.ano, row.preco, row.desconto, row.categoria, row.empresa));
+        const result = await dbService.query(query);
+        if (!result || !result.rows) return [];
+        return result.rows.map(row => new JogoDTO(row.nome, row.descricao, row.ano, row.preco, row.desconto, row.categoria, row.empresa));
     }
 
     async findById(id) {
-        const query = "SELECT * FROM jogos WHERE id = ?";
-        const row = await dbService.get(query, [id]);
+        const query = "SELECT * FROM jogos WHERE id = $1";
+        const result = await dbService.query(query, [id]);
+        const row = result.rows[0];
         if (!row) return null;
         return new Jogo(row.id, row.nome, row.ano, row.preco, row.desconto, row.descricao, row.fk_empresa, row.fk_categoria);
     }
@@ -39,31 +41,33 @@ class JogoDAO {
             SELECT j.*, ic.chave_ativacao FROM jogos j
             JOIN itens_carrinho ic ON j.id = ic.fk_jogo
             JOIN carrinhos c ON ic.fk_carrinho = c.id
-            WHERE c.fk_usuario = ?`;
-        const rows = await dbService.all(query, [id]);
-        if (rows == undefined) return [];
-        return rows.map(row => new JogoUsuarioDTO(row.chave_ativacao, new Jogo(row.id, row.nome, row.ano, row.preco, row.desconto, row.descricao, row.fk_empresa, row.fk_categoria)));
+            WHERE c.fk_usuario = $1`;
+        const result = await dbService.query(query, [id]);
+        if (!result || !result.rows) return [];
+        return result.rows.map(row => new JogoUsuarioDTO(row.chave_ativacao, new Jogo(row.id, row.nome, row.ano, row.preco, row.desconto, row.descricao, row.fk_empresa, row.fk_categoria)));
     }
 
     async create(jogo) {
-        const query = "INSERT INTO jogos (nome, descricao, ano, preco, desconto, fk_empresa, fk_categoria) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        // Adicionado RETURNING id para o PostgreSQL devolver o ID da nova linha
+        const query = "INSERT INTO jogos (nome, descricao, ano, preco, desconto, fk_empresa, fk_categoria) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id";
         const params = [jogo.nome, jogo.descricao, jogo.ano, jogo.preco, jogo.desconto, jogo.fkEmpresa, jogo.fkCategoria];
-        const result = await dbService.run(query, params);
-        jogo.id = result.lastID; // Atribuindo o ID gerado pelo banco de dados
+        const result = await dbService.query(query, params);
+        
+        jogo.id = result.rows[0].id; // Atribuindo o ID gerado pelo banco de dados
         return jogo;
     }
 
     async update(jogo) {
-        const query = "UPDATE jogos set nome = ?, descricao = ?, ano = ?, preco = ?, desconto = ?, fk_empresa = ?, fk_categoria = ? where id = ?";
+        const query = "UPDATE jogos set nome = $1, descricao = $2, ano = $3, preco = $4, desconto = $5, fk_empresa = $6, fk_categoria = $7 where id = $8";
         const params = [jogo.nome, jogo.descricao, jogo.ano, jogo.preco, jogo.desconto, jogo.fkEmpresa, jogo.fkCategoria, jogo.id];
-        const result = await dbService.run(query, params);
-        return { changes: result.changes };
+        const result = await dbService.query(query, params);
+        return { changes: result.rowCount };
     }
 
     async delete(id) {
-        const query = "DELETE FROM jogos WHERE id = ?";
-        const result = await dbService.run(query, [id]);
-        return { changes: result.changes };
+        const query = "DELETE FROM jogos WHERE id = $1";
+        const result = await dbService.query(query, [id]);
+        return { changes: result.rowCount };
     }
 }
 
