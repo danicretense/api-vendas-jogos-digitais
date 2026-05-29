@@ -25,7 +25,7 @@ class JogoDAO {
 
         const result = await dbService.query(query);
         if (!result || !result.rows) return [];
-        return result.rows.map(row => new JogoDTO(row.nome, row.descricao, row.ano, row.preco, row.desconto, row.categoria, row.empresa));
+        return result.rows.map(row => new JogoDTO(row.id,row.nome, row.descricao, row.ano, row.preco, row.desconto, row.categoria, row.empresa));
     }
 
     async findById(id) {
