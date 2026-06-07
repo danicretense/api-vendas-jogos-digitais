@@ -15,6 +15,7 @@ const authMiddleware = (req, res, next) => {
     req.user = decoded; // Adiciona o payload do token (ex: { id: 1, perfil: 'Cliente' }) ao request
     next();
   } catch (error) {
+      console.log("ERRO JWT:", error.message);
     res.status(401).json({ message: 'Token inválido.' });
   }
 };
