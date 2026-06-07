@@ -1,6 +1,6 @@
 class JogoDTO {
     constructor(id,nome, descricao, ano, preco, desconto, categoria, empresa_nome) {
-        this.id
+        this.id=id;
         this.nome = nome;
         this.descricao = descricao;
         this.ano = ano;
