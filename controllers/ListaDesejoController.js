@@ -19,7 +19,7 @@ class ListaDesejoController {
             return res.status(400).json({ error: error.message });
         }
     }
-
+//Ver jogos da lista de desejos
     async show(req, res) {
         try {
             const usuarioId = req.user.id;

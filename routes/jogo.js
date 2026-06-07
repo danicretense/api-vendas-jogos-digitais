@@ -14,3 +14,5 @@ router.put('/:id', [adminMiddleware], jogoController.update);
 router.delete('/:id', [adminMiddleware], jogoController.delete);
 
 module.exports = router;
+
+
