@@ -35,9 +35,9 @@ class Database {
 
             await this.createTables();
 
-            await this.seed();
+           // await this.seed();
 
-            await this.seedJogosFromCSV();
+           // await this.seedJogosFromCSV();
 
         } catch (erro) {
 
