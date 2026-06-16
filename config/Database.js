@@ -235,7 +235,8 @@ class Database {
                 chave_ativacao TEXT,
 
                 FOREIGN KEY (fk_jogo)
-                REFERENCES jogos(id),
+                REFERENCES jogos(id)
+                ON DELETE CASCADE,
 
                 FOREIGN KEY (fk_carrinho)
                 REFERENCES carrinhos(id)
@@ -270,7 +271,8 @@ class Database {
                 REFERENCES usuarios(id),
 
                 FOREIGN KEY (fk_jogo)
-                REFERENCES jogos(id),
+                REFERENCES jogos(id)
+                ON DELETE CASCADE,
 
                 UNIQUE(fk_usuario, fk_jogo)
 
@@ -296,7 +298,8 @@ class Database {
                 REFERENCES usuarios(id),
 
                 FOREIGN KEY (fk_jogo)
-                REFERENCES jogos(id),
+                REFERENCES jogos(id)
+                ON DELETE CASCADE,
 
                 UNIQUE(fk_usuario, fk_jogo)
 
